@@ -45,4 +45,25 @@ describe("describeNoteDraft", () => {
       canSave: false,
     });
   });
+
+  it("has nothing to save when the draft differs from the saved note only by surrounding whitespace", () => {
+    const status = describeNoteDraft("same text \n", "same text");
+    expect(status.unchanged).toBe(true);
+    expect(status.canSave).toBe(false);
+  });
+
+  it("accepts a note at the limit with trailing whitespace", () => {
+    const status = describeNoteDraft(`${"a".repeat(MAX_NOTE_LENGTH)}  `, null);
+    expect(status).toMatchObject({
+      length: MAX_NOTE_LENGTH,
+      tooLong: false,
+      canSave: true,
+    });
+  });
+
+  it("shows clearing a saved note as an unsaved change that cannot be saved", () => {
+    const status = describeNoteDraft("  ", "saved text");
+    expect(status.unchanged).toBe(false);
+    expect(status.canSave).toBe(false);
+  });
 });
